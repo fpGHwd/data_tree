@@ -43,7 +43,7 @@ class SelfDefinedTree(tl.Tree):
             min_lat = parent.min_lat + k / index * step_lat
             max_lng = min_lng + step_lng
             max_lat = min_lat + step_lat
-            nd_list.append(Node(min_lng, min_lat, max_lng,max_lat, tag="T" \
+            nd_list.append(Node(min_lng, min_lat, max_lng,max_lat, tag="T_" \
                                 + str(node_id), identifier="N_" + str(node_id), data=None))
             node_id = node_id + 1
             k = k + 1
@@ -142,7 +142,7 @@ def self_tree(min_lng, min_lat, max_lng,max_lat, layers=2, n =4):
     '''
     # 构造边界为 min_lng, min_lat, max_lng, max_lat 的树，step_lng 和 step_lat 根据 layers 自动设定
     global node_id
-    root = Node(min_lng, min_lat, max_lng, max_lat, tag="root", identifier="N_"+ str(node_id))
+    root = Node(min_lng, min_lat, max_lng, max_lat, tag="ROOT", identifier="N_"+ str(node_id))
     node_id = node_id + 1
     st = SelfDefinedTree()
     st.add_node(node=root,parent=None)
@@ -151,13 +151,13 @@ def self_tree(min_lng, min_lat, max_lng,max_lat, layers=2, n =4):
 
 
 if __name__ == '__main__':
-    st = self_tree(min_lng = -115.36, max_lng = -115.00, min_lat = 35.55, max_lat = 36.35, layers= 4, n = 4)
+    st = self_tree(min_lng = -115.36, max_lng = -115.00, min_lat = 35.55, max_lat = 36.35, layers= 6, n = 4)
     st.show()
 
     # 读取文件的数据，转换成 data_list
     data_list = df_to_data_list(data_handle("~/Downloads/LV.xlsx"))
 
-    # 将自定义的 data 列表插入树中的叶子结点上
+    # 将自定义的 data 列表中的元素插入到树中的叶子结点上
     for data in data_list:
         data.self_insert_to_node_list(st.get_node(st.root),st)
 
