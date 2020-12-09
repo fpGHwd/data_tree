@@ -42,16 +42,15 @@ class SelfDefinedTree(tl.Tree):
             min_lat = parent.min_lat + k / index * step_lat
             max_lng = min_lng + step_lng
             max_lat = min_lat + step_lat
-            nd_list.append(Node(min_lng, min_lat, max_lng,max_lat, tag="T" + str(node_id), identifier="N_" + str(node_id), data=None))
+            nd_list.append(Node(min_lng, min_lat, max_lng,max_lat, tag="T" \
+                                + str(node_id), identifier="N_" + str(node_id), data=None))
             node_id = node_id + 1
             k = k + 1
 
         for node in nd_list:
             self.add_node(node, parent)
-
-        # 递归
-        for node in nd_list:
-            self.create_nodes_recursion(layers-1, node, n)
+            # 递归创建该结点下的子结点（区域）
+            self.create_nodes_recursion(layers - 1, node, n)
 
 
 class Data():
@@ -157,7 +156,7 @@ if __name__ == '__main__':
     # 读取文件的数据，转换成 data_list
     data_list = df_to_data_list(data_handle("~/Downloads/LV.xlsx"))
 
-    # 插入树中
+    # 将自定义的 data 列表插入树中的叶子结点上
     for data in data_list:
         data.self_insert_to_node_list(st.get_node(st.root),st)
 
