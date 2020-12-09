@@ -64,7 +64,7 @@ class Data():
 
 
     # todo
-    def self_insert_to_node_list(self,insert_node,tree):
+    def self_insert_to_node_list(self, insert_node, tree):
         '''自动加入所在的叶子节点的 data_list 中'''
         if(insert_node.is_leaf()):
             insert_node.data.append(self) # 插入具体数据，可以自行如何操作数据
@@ -151,7 +151,7 @@ def self_tree(min_lng, min_lat, max_lng,max_lat, layers=2, n =4):
 
 
 if __name__ == '__main__':
-    st = self_tree(min_lng = -115.36, max_lng = -115.00, min_lat = 35.55, max_lat = 36.35, layers= 6, n = 4)
+    st = self_tree(min_lng = -115.36, max_lng = -115.00, min_lat = 35.55, max_lat = 36.35, layers=4, n=4)
     st.show()
 
     # 读取文件的数据，转换成 data_list
