@@ -17,6 +17,8 @@ class Node(tl.Node):
         self.max_lat = max_lat
         self.data = [] # 自定义的数据
 
+
+# 全局变量，用于初始化树的各个结点
 node_id = 0
 
 # 自定义树
