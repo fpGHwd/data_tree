@@ -21,7 +21,8 @@ class Node(tl.Node):
 # 全局变量，用于初始化树的各个结点
 node_id = 0
 
-# 自定义树
+
+# 自定义树，继承 treelib.Tree
 class SelfDefinedTree(tl.Tree):
     def __init__(self):
         tl.Tree.__init__(self)
@@ -81,7 +82,7 @@ class Data():
                     and self.longitude >= node.min_lng  \
                     and self.longitude <= node.max_lng:
                 self.self_insert_to_node_list(node,tree)
-                break
+                return
 
 
 def data_handle(xlsx_path="~/Downloads/LV.xlsx"):
@@ -150,7 +151,7 @@ def self_tree(min_lng, min_lat, max_lng,max_lat, layers=2, n =4):
 
 
 if __name__ == '__main__':
-    st = self_tree(min_lng = -115.36, max_lng = -115.00, min_lat = 35.55, max_lat = 36.35, layers= 4, n = 3)
+    st = self_tree(min_lng = -115.36, max_lng = -115.00, min_lat = 35.55, max_lat = 36.35, layers= 4, n = 4)
     st.show()
 
     # 读取文件的数据，转换成 data_list
@@ -169,4 +170,5 @@ if __name__ == '__main__':
 
 '''
 1. 自定义 step_lat 和 step_lng 的话，只需调整 latitude 和 longitude 以及层数 n 和树的叉数 layers 
+2. n 的值应该为平方数，才是规则的分布。 4/9/16/25 叉数，这样分布比较规则。 n 的取值范围
 '''
