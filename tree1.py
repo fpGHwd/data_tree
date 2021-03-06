@@ -77,17 +77,38 @@ class SelfDefinedTree(tl.Tree):
             dlr.append(dl[index])
         return dlr
 
-    def data_list_classifing(self, data_list, tree_node):
+    def data_list_classifing(self, data_list, tree_node,neighbor_node,divide_type):
         """classify data_list into four groups via tree_node"""
-        dlr = []
+        dlr1 = []
+        dlr2 = []
+        critical = []
         # print(type(data_list))
         for dl in data_list:
-            if dl[0] <= tree_node.max_lng \
-               and dl[0] >= tree_node.min_lng \
-               and dl[1] <= tree_node.max_lat \
-               and dl[1] >= tree_node.min_lat:
-                dlr.append(dl)
-        return dlr
+            if dl[0] < tree_node.max_lng \
+               and dl[0] > tree_node.min_lng \
+               and dl[1] < tree_node.max_lat \
+               and dl[1] > tree_node.min_lat:
+                dlr1.append(dl)
+            elif dl[0] < neighbor_node.max_lng \
+                and dl[0] > neighbor_node.min_lng \
+                and dl[1] < neighbor_node.max_lat \
+                and dl[1] > neighbor_node.min_lat:
+                dlr2.append(dl)
+            # if divide_type == 0 and tree_node.max_lng == neighbor_node.min_lng:
+            #     side_dir.append(dl)
+            # elif divide_type ==1 and tree_node.max_lat == neighbor_node.min_lng:
+            #     side_dir.append(dl)
+            else:
+                critical.append(dl)
+        k = 0
+        for c in critical:
+            if k == 0:
+                dlr1.append(c)
+            else:
+                dlr2.append(c)
+            k = 1 - k
+
+        return dlr1,dlr2
 
 
     def node_list_to_tuple_list(self,data_list):
@@ -157,12 +178,13 @@ class SelfDefinedTree(tl.Tree):
         # 1,2,3,4
         # 1
 
-        n = 0
-        while n < 2:
-            self.add_node(nd_list[n],parent)
-            dl = self.data_list_classifing(data_list, nd_list[n])
-            self.recursion_divide(dl,depth-1, nd_list[n],divide_type=1-divide_type)
-            n += 1
+        node = nd_list[0]
+        neighbor = nd_list[1]
+        self.add_node(node,parent)
+        self.add_node(neighbor,parent)
+        dlr1,dlr2 = self.data_list_classifing(data_list, node, neighbor,divide_type)
+        self.recursion_divide(dlr1,depth-1, node,divide_type=1-divide_type)
+        self.recursion_divide(dlr2,depth-1, neighbor,divide_type=1-divide_type)
 
 
 class Data():
@@ -173,8 +195,6 @@ class Data():
         self.longitude = longitude
         self.location = location
 
-
-    # todo
     def self_insert_to_node_list(self, insert_node, tree):
         '''自动加入所在的叶子节点的 data_list 中'''
         if(insert_node.is_leaf()):
@@ -195,6 +215,14 @@ class Data():
                 self.self_insert_to_node_list(node,tree)
                 return
 
+    def __hash__(self):
+        return hash(self.latitude + self.longitude)
+
+    def __eq__(self,other):
+        if self.longitude == other.longitude and self.latitude == other.latitude:
+            return True
+        else:
+            return False
 
 
 def data_handle(xlsx_path="~/Downloads/LV.xlsx"):
@@ -304,6 +332,9 @@ def test2():
     # 读取文件的数据，转换成 data_list
     data_list = df_to_data_list(data_handle("~/Projects/LV.xlsx"))
 
+    # 数据去重
+    data_list = list(set(data_list))
+
     # 过滤数据
     min_lng = -115.36
     max_lng = -115.00
@@ -312,7 +343,7 @@ def test2():
     data_list = data_filter(data_list, min_lng,max_lng,min_lat,max_lat)
 
     st = self_tree1(min_lng = -115.36, max_lng = -115.00, \
-                    min_lat = 35.55, max_lat = 36.35, layers=3, data_list_1=data_list)
+                    min_lat = 35.55, max_lat = 36.35, layers=5, data_list_1=data_list)
     st.show()
 
     print("exit")
