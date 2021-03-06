@@ -84,15 +84,15 @@ class SelfDefinedTree(tl.Tree):
         critical = []
         # print(type(data_list))
         for dl in data_list:
-            if dl[0] < tree_node.max_lng \
-               and dl[0] > tree_node.min_lng \
-               and dl[1] < tree_node.max_lat \
-               and dl[1] > tree_node.min_lat:
+            if dl.longitude < tree_node.max_lng \
+               and dl.longitude > tree_node.min_lng \
+               and dl.longitude < tree_node.max_lat \
+               and dl.longitude > tree_node.min_lat:
                 dlr1.append(dl)
-            elif dl[0] < neighbor_node.max_lng \
-                and dl[0] > neighbor_node.min_lng \
-                and dl[1] < neighbor_node.max_lat \
-                and dl[1] > neighbor_node.min_lat:
+            elif dl.longitude < neighbor_node.max_lng \
+                and dl.longitude > neighbor_node.min_lng \
+                and dl.longitude < neighbor_node.max_lat \
+                and dl.longitude > neighbor_node.min_lat:
                 dlr2.append(dl)
             # if divide_type == 0 and tree_node.max_lng == neighbor_node.min_lng:
             #     side_dir.append(dl)
@@ -138,10 +138,10 @@ class SelfDefinedTree(tl.Tree):
         # x data list
 
         if divide_type == 0:
-            xdl = self.data_list_x_or_y(data_list, divide_type)
+            xdl = self.data_list_x_or_y(self.node_list_to_tuple_list(data_list), divide_type)
             middle = self.divide_list(xdl)
         elif divide_type == 1:
-            ydl = self.data_list_x_or_y(data_list, divide_type)
+            ydl = self.data_list_x_or_y(self.node_list_to_tuple_list(data_list), divide_type)
             middle = self.divide_list(ydl)
 
         n = 1
@@ -303,7 +303,7 @@ def test1():
     print("exit")
 
 
-def self_tree1(min_lng, min_lat,max_lng,max_lat, layers=2, data_list_1=[]):
+def self_tree1(min_lng, min_lat,max_lng,max_lat, layers=2, data_list=[]):
     global node_id
     node_id = 0
     root = Node(min_lng, min_lat, max_lng, max_lat, tag="ROOT", identifier="N_"+ str(node_id))
@@ -312,7 +312,7 @@ def self_tree1(min_lng, min_lat,max_lng,max_lat, layers=2, data_list_1=[]):
     st.add_node(node=root, parent=None)
     # data_list_1 = df_to_data_list(data_handle("~/Projects/LV.xls"))
     # print("the data_list_1 is ", data_list_1)
-    data_list = st.node_list_to_tuple_list(data_list_1)
+
     st.recursion_divide(data_list,layers,root)
     return st
 
@@ -343,7 +343,7 @@ def test2():
     data_list = data_filter(data_list, min_lng,max_lng,min_lat,max_lat)
 
     st = self_tree1(min_lng = -115.36, max_lng = -115.00, \
-                    min_lat = 35.55, max_lat = 36.35, layers=5, data_list_1=data_list)
+                    min_lat = 35.55, max_lat = 36.35, layers=5, data_list=data_list)
     st.show()
 
     print("exit")

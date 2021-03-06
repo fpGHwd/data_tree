@@ -80,10 +80,10 @@ class SelfDefinedTree(tl.Tree):
         dlr = []
         # print(type(data_list))
         for dl in data_list:
-            if dl[0] < tree_node.max_lng \
-               and dl[0] > tree_node.min_lng \
-               and dl[1] < tree_node.max_lat \
-               and dl[1] > tree_node.min_lat:
+            if dl.longitude < tree_node.max_lng \
+               and dl.longitude > tree_node.min_lng \
+               and dl.latitude < tree_node.max_lat \
+               and dl.latitude > tree_node.min_lat:
                 dlr.append(dl)
         return dlr
 
