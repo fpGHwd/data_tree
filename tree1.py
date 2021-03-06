@@ -64,9 +64,11 @@ class SelfDefinedTree(tl.Tree):
         # print(ls)
         n = len(ls)
         if n%2==1:
-            return ls[(n-1)//2]
+            mid = ls[(n-1)//2]
         else:
-            return  float(ls[n//2-1]+ls[n//2])/2
+            mid =  float(ls[n//2-1]+ls[n//2])/2
+
+        return mid
 
     def data_list_x_or_y(self,data_list,index):
         dlr = []
@@ -80,10 +82,10 @@ class SelfDefinedTree(tl.Tree):
         dlr = []
         # print(type(data_list))
         for dl in data_list:
-            if dl[0] < tree_node.max_lng \
-               and dl[0] > tree_node.min_lng \
-               and dl[1] < tree_node.max_lat \
-               and dl[1] > tree_node.min_lat:
+            if dl[0] <= tree_node.max_lng \
+               and dl[0] >= tree_node.min_lng \
+               and dl[1] <= tree_node.max_lat \
+               and dl[1] >= tree_node.min_lat:
                 dlr.append(dl)
         return dlr
 
@@ -99,51 +101,56 @@ class SelfDefinedTree(tl.Tree):
         return tl
 
 
-    def recursion_divide(self,data_list, depth, parent):
+
+    def recursion_divide(self,data_list, depth, parent, divide_type=0):
         """handle data_list recursively"""
         global node_id
 
         if depth == 1:
+            # 将自定义的 data 列表中的元素插入到树中的叶子结点上
+            for data in data_list:
+                parent.data.append(data)
             return
 
         # data_list = self.node_list_to_tuple_list(data_list_1)
         # get list of data in two dimension
         # x data list
-        xdl = self.data_list_x_or_y(data_list,0)
-        ydl = self.data_list_x_or_y(data_list,1)
 
-        middle_xdl = self.divide_list(xdl)
-        middle_ydl = self.divide_list(ydl)
-
-        nd_list = []
+        if divide_type == 0:
+            xdl = self.data_list_x_or_y(data_list, divide_type)
+            middle = self.divide_list(xdl)
+        elif divide_type == 1:
+            ydl = self.data_list_x_or_y(data_list, divide_type)
+            middle = self.divide_list(ydl)
 
         n = 1
         nd_list = []
-        while n <= 4:
+        while n <= 2:
             if n == 1:
-                min_lng = parent.min_lng
-                max_lng = middle_xdl
-                min_lat = parent.min_lat
-                max_lat = middle_ydl
+                if divide_type == 0:
+                    min_lng = parent.min_lng
+                    max_lng = middle
+                    min_lat = parent.min_lat
+                    max_lat = parent.max_lat
+                elif divide_type == 1:
+                    min_lng = parent.min_lng
+                    max_lng = parent.max_lng
+                    min_lat = parent.min_lat
+                    max_lat = middle
             elif n == 2:
-                min_lng = middle_xdl
-                max_lng = parent.max_lng
-                min_lat = parent.min_lat
-                max_lat = middle_ydl
-            elif n == 3:
-                min_lng = parent.min_lng
-                max_lng = middle_xdl
-                min_lat = middle_ydl
-                max_lat = parent.max_lat
-            elif n == 4:
-                min_lng = middle_xdl
-                max_lng = parent.max_lng
-                min_lat = middle_ydl
-                max_lat = parent.max_lat
+                if divide_type == 0:
+                    min_lng = middle
+                    max_lng = parent.max_lng
+                    min_lat = parent.min_lat
+                    max_lat = parent.max_lat
+                elif divide_type == 1:
+                    min_lng = parent.min_lng
+                    max_lng = parent.max_lng
+                    min_lat = middle
+                    max_lat = parent.max_lat
 
             nd_list.append(Node(min_lng, min_lat,max_lng,max_lat, tag="T_" \
                             + str(node_id), identifier = "N_" + str(node_id), data=None))
-
             node_id = node_id + 1
             n += 1
 
@@ -152,8 +159,9 @@ class SelfDefinedTree(tl.Tree):
 
         n = 0
         while n < 2:
+            self.add_node(nd_list[n],parent)
             dl = self.data_list_classifing(data_list, nd_list[n])
-            self.recursion_divide(dl,depth-1, nd_list[n])
+            self.recursion_divide(dl,depth-1, nd_list[n],divide_type=1-divide_type)
             n += 1
 
 
@@ -254,7 +262,7 @@ def self_tree(min_lng, min_lat, max_lng,max_lat, layers=2, n =4):
     return st
 
 def test1():
-    st = self_tree(min_lng = -115.36, max_lng = -115.00, min_lat = 35.55, max_lat = 36.35, layers=4, n=4)
+    st = self_tree(min_lng = -115.36, max_lng = -115.00, min_lat = 35.55, max_lat = 36.35, layers=5, n=4)
     st.show()
 
     # 读取文件的数据，转换成 data_list
@@ -267,30 +275,45 @@ def test1():
     print("exit")
 
 
-def self_tree1(min_lng, min_lat,max_lng,max_lat, layers=2):
+def self_tree1(min_lng, min_lat,max_lng,max_lat, layers=2, data_list_1=[]):
     global node_id
     node_id = 0
     root = Node(min_lng, min_lat, max_lng, max_lat, tag="ROOT", identifier="N_"+ str(node_id))
     node_id = node_id + 1
     st = SelfDefinedTree()
     st.add_node(node=root, parent=None)
-    data_list_1 = df_to_data_list(data_handle("~/Projects/LV.xls"))
+    # data_list_1 = df_to_data_list(data_handle("~/Projects/LV.xls"))
     # print("the data_list_1 is ", data_list_1)
     data_list = st.node_list_to_tuple_list(data_list_1)
     st.recursion_divide(data_list,layers,root)
     return st
 
+def data_filter(data_list, min_lng, max_lng, min_lat,max_lat):
+    new_data_list = []
+    for dl in data_list:
+        if dl.longitude > max_lng or dl.longitude < min_lng or dl.latitude > max_lat or dl.latitude < min_lat:
+            continue
+        else:
+            new_data_list.append(dl)
+
+    return new_data_list
+
+
 def test2():
-    st = self_tree1(min_lng = -115.36, max_lng = -115.00, \
-                    min_lat = 35.55, max_lat = 36.35, layers=3)
-    st.show()
 
     # 读取文件的数据，转换成 data_list
-    # data_list = df_to_data_list(data_handle("~/Downloads/LV(1).xlsx"))
+    data_list = df_to_data_list(data_handle("~/Projects/LV.xlsx"))
 
-    # 将自定义的 data 列表中的元素插入到树中的叶子结点上
-    # for data in data_list:
-    #     data.self_insert_to_node_list(st.get_node(st.root),st)
+    # 过滤数据
+    min_lng = -115.36
+    max_lng = -115.00
+    min_lat = 35.55
+    max_lat = 36.35
+    data_list = data_filter(data_list, min_lng,max_lng,min_lat,max_lat)
+
+    st = self_tree1(min_lng = -115.36, max_lng = -115.00, \
+                    min_lat = 35.55, max_lat = 36.35, layers=3, data_list_1=data_list)
+    st.show()
 
     print("exit")
 
