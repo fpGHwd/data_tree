@@ -232,7 +232,7 @@ def data_handle(xlsx_path="~/Downloads/LV.xlsx"):
     '''真实数据集'''
     Path = xlsx_path
     column_names = ['user', 'time', 'latitude', 'longitude', 'location']
-    data_type = {'user': np.int, 'time': str, 'latitude': np.float32, 'longitude': np.float32, 'location': str}
+    # data_type = {'user': np.int, 'time': str, 'latitude': np.float32, 'longitude': np.float32, 'location': str}
 
     xlsx = pd.ExcelFile(Path)
     df = pd.read_excel(xlsx, names=column_names)
@@ -346,7 +346,12 @@ def test2():
                     min_lat = 35.55, max_lat = 36.35, layers=5, data_list=data_list)
     st.show()
 
+
+    tmp_list = st.nodes["N_7"].data
+    print("N_7 结点的数据 list 中第一个结点的 location id： ", tmp_list[0].location)
+
     print("exit")
+
 
 if __name__ == '__main__':
     test2()
